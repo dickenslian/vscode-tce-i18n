@@ -25,7 +25,7 @@ function extractTableField(fileContent: string): string {
   }
 
   // parse 默认忽略方法，指定方法直接转成字符串
-  let strToWrite = JSON.stringify(fieldList, (key, value) => {
+  let columnsToWrite = JSON.stringify(fieldList, (key, value) => {
     if (typeof value === "function") {
       return value.toString();
     } else {
@@ -34,14 +34,29 @@ function extractTableField(fileContent: string): string {
   });
 
   // 去掉属性名两边的引号
-  strToWrite = strToWrite.replace(/"(\w+)":/g, (match, key) => {
+  columnsToWrite = columnsToWrite.replace(/"(\w+)":/g, (match, key) => {
     return `${key}:`;
   });
 
   // 去掉方法两边的引号
-  strToWrite = strToWrite.replace(/"(\([\s\S]*?data)"/g, (match, key) => {
-    return key;
-  });
+  columnsToWrite = columnsToWrite.replace(
+    /"(\([\s\S]*?data)"/g,
+    (match, key) => {
+      return key;
+    }
+  );
+
+  const strToWrite = `import React, { Fragment } from 'react';
+  import { t, Trans } from '@tea/app/i18n';
+  import { constants } from '@tencent/tce-lib';
+
+  export function getListFields() {
+    // 列表参数
+    let columns = ${columnsToWrite};
+
+    return columns;
+  }
+  `;
 
   return strToWrite;
 }
