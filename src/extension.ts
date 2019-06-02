@@ -20,7 +20,17 @@ function extractTableField(fileContent: string): string {
 
   if (Array.isArray(fieldList)) {
     fieldList.forEach(item => {
-      item.render = (data: object) => data;
+      const key = item.key;
+      const reContent = new RegExp(`[\\s\\S]*case "${key}":([\\s\\S]*?)break`,"g");
+      const foundContent = reContent.exec(fileContent);
+
+      if (!Array.isArray(foundContent) || foundContent.length < 2) {
+        item.render = '(data: object) => { "/* return ()*/" }';
+      } else {
+        let caseContent = foundContent[1];
+        caseContent = caseContent.trim();
+        item.render = `(data: object) => { "/*${caseContent}*/" }`;
+      }
     });
   }
 
@@ -40,11 +50,28 @@ function extractTableField(fileContent: string): string {
 
   // 去掉方法两边的引号
   columnsToWrite = columnsToWrite.replace(
-    /"(\([\s\S]*?data)"/g,
+    /"(\([\s\S]*?\s\})"/g,
     (match, key) => {
       return key;
     }
   );
+
+  // 去掉方法两边的引号
+  // columnsToWrite = columnsToWrite.replace(
+  //   /"(\([\s\S]*?data)"/g,
+  //   (match, key) => {
+  //     return key;
+  //   }
+  // );
+
+  // 去掉多余的换行和斜杠
+  columnsToWrite = columnsToWrite.replace(/\\n/g,'');
+  columnsToWrite = columnsToWrite.replace(/\\/g,'');  
+
+  // 让注释生效
+  columnsToWrite = columnsToWrite.replace(/"\/\*/g,'\/\*');  
+  columnsToWrite = columnsToWrite.replace(/\*\/"/g,'\*\/');  
+
 
   const strToWrite = `import React, { Fragment } from 'react';
   import { t, Trans } from '@tea/app/i18n';
