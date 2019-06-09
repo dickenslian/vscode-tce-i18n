@@ -1,6 +1,13 @@
 import * as vscode from "vscode";
 const fs = require("fs");
 const clipboardy = require("clipboardy");
+const path = require('path');
+const exec = require('child_process').exec;
+
+enum ComponentType {
+  TABLE,
+}
+
 
 function extractTableField(fileContent: string): string {
   const re = /[\s\S]*colums:([\s\S]*\}\s+\])[\s\S]*/;
@@ -88,45 +95,118 @@ function extractTableField(fileContent: string): string {
   return strToWrite;
 }
 
+function generateClassName(dirName:string) {
+  if (!dirName) {
+      throw new Error('dir name should not be null');
+  }
+
+  function capitalizeFirstLetter(string:string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  const nameArr = dirName.split('_');
+  let className = '';
+  
+  for (const name of nameArr) {
+      className += capitalizeFirstLetter(name);
+  }
+  
+  return className;
+}
+
+function generateComponent(componentName:string, fullPath:string, componentType: ComponentType) {
+  if (fs.existsSync(fullPath)) {
+      console.log(`${componentName} already exists, please choose another name.`);
+      return;
+  }
+
+  const className = generateClassName(componentName);
+  console.log(`class name: ${className}`);
+
+
+  fs.mkdirSync(fullPath);
+
+  const fcTemplate = path.resolve(__dirname, '../code_templates/fc.txt');
+
+  const jsFile = path.resolve(`${fullPath}/index.js`);
+
+  const jsFileContent = fs.readFileSync(fcTemplate, { encoding: 'utf-8' });
+
+  fs.writeFileSync(jsFile, jsFileContent.replace(/ClassName/g, className));
+
+/*   exec(`cd ${fullPath} && git add .`, (err) => {
+      if (err) {
+          console.log('command fail:', 'git add .');
+      } else {
+          console.log('command success:', 'git add .');
+      }
+  }); */
+
+ vscode.window.showInformationMessage('component created successfully!');
+}
+
 export function activate(context: vscode.ExtensionContext) {
-  let disposable = vscode.commands.registerCommand(
+  
+  const generateCode = vscode.commands.registerCommand(
     "extension.generateCode",
     param => {
       let currentlyOpenTabfilePath;
       const textEditor = vscode.window.activeTextEditor;
 
-      if (textEditor) {
-        currentlyOpenTabfilePath = textEditor.document.fileName;
-
-        fs.readFile(
-          currentlyOpenTabfilePath,
-          "utf8",
-          (err: any, data: string) => {
-            if (err) throw err;
-
-            if (!data) {
-              vscode.window.showInformationMessage("fail to read file");
-              return;
-            }
-
-            const strToWrite = extractTableField(data);
-
-            clipboardy.writeSync(strToWrite);
-
-            vscode.window.showInformationMessage(
-              "file content has been written to clipboard"
-            );
-          }
-        );
-      } else {
+      if (!textEditor) {
         vscode.window.showInformationMessage(
           "pls open the file your code generated from"
         );
+        return;
       }
+
+      currentlyOpenTabfilePath = textEditor.document.fileName;
+
+      fs.readFile(
+        currentlyOpenTabfilePath,
+        "utf8",
+        (err: any, data: string) => {
+          if (err) throw err;
+
+          if (!data) {
+            vscode.window.showInformationMessage("fail to read file");
+            return;
+          }
+
+          const strToWrite = extractTableField(data);
+
+          clipboardy.writeSync(strToWrite);
+
+          vscode.window.showInformationMessage(
+            "file content has been written to clipboard"
+          );
+        }
+      );
     }
   );
 
-  context.subscriptions.push(disposable);
+  const createTable = vscode.commands.registerCommand(
+    "extension.createTable",
+    param => {
+      const folderPath = param.fsPath;
+
+      const options = {
+        prompt: "Please input the component name: ",
+        placeHolder: "Component Name"
+    }
+    
+    vscode.window.showInputBox(options).then(value => {
+        if (!value) return;
+
+        const componentName = value;
+        const fullPath = `${folderPath}/${componentName}`;
+
+        generateComponent(componentName, fullPath, ComponentType.TABLE);
+    });
+    });
+
+  context.subscriptions.push(generateCode);
+  context.subscriptions.push(createTable);
 }
 
 // this method is called when your extension is deactivated

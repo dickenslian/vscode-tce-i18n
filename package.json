@@ -1,8 +1,8 @@
 {
   "name": "tce-i18n",
   "displayName": "tce-i18n",
-  "description": "code converter for i18n project",
-  "version": "0.0.1",
+  "description": "development tool for tce i18n project",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.34.0"
   },
@@ -15,7 +15,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.generateCode"
+    "onCommand:extension.generateCode",
+    "onCommand:extension.createTable"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -23,7 +24,10 @@
       {
         "command": "extension.generateCode",
         "title": "Generate Code"
-      }
+      }, {
+        "command": "extension.createTable",
+        "title": "Create Table"
+    }
     ],
     "menus": {
       "editor/context": [
@@ -31,7 +35,13 @@
           "command": "extension.generateCode",
           "group": "1_modification"
         }
-      ]
+      ],
+      "explorer/context": [
+        {
+            "command": "extension.createTable",
+            "group": "1_modification"
+        }
+    ]
     }
   },
   "scripts": {

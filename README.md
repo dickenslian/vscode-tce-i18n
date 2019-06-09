@@ -1,3 +1,3 @@
 # tce-i18n README
 
-tce-i18n code generation tool
+development tool for tce i18n project
