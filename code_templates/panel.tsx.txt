@@ -1,0 +1,18 @@
+import React, { Fragment } from 'react';
+import { Justify } from '@tea/component';
+
+function OperationPanel({  }) {
+
+  return (
+    <Justify
+      left={
+
+      }
+      right={
+
+      }
+    />
+  );
+}
+
+export default OperationPanel;

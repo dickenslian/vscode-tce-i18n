@@ -1,0 +1,16 @@
+import React, { useState } from 'react';
+import OperationPanel from './OperationPanel';
+import Table from './Table';
+import './index.css';
+
+const ClassName = () => {
+
+  return (
+    <div className="">
+      <OperationPanel />
+      <Table />
+    </div>
+  );
+};
+
+export default ClassName;

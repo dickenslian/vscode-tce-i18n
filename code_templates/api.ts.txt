@@ -1,0 +1,55 @@
+import { useState, useEffect } from "react";
+import { tips } from "@tencent/tce-lib";
+import get from "lodash/get";
+import { ServerTableData } from "types";
+import { getServerList } from "../../api";
+
+export function useTableData(page: number, pageSize: number): ServerTableData {
+  const [filter, setFilter] = useState({});
+  const [records, setRecords] = useState([]);
+  const [error, setError] = useState(null);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  let hasWorkingRecord = false;
+
+  useEffect(() => {
+    let didCancel = false;
+
+    async function fetchData() {
+      setLoading(true);
+
+      const reqParam = {
+        page,
+        count: pageSize
+      };
+
+      const result = await getServerList(reqParam);
+
+      // 如果查询条件变了，就abort掉之前的任务
+      if (didCancel) {
+        return;
+      }
+
+      if (result.code === 0 && get(result, "data.data")) {
+
+      } else {
+        tips.error("");
+        setError("");
+      }
+    }
+
+    fetchData();
+
+    return () => {
+      didCancel = true;
+    };
+  }, [page, pageSize, filter, keyword]);
+
+  return {
+    records,
+    error,
+    totalRecords,
+    loading
+  };
+}

@@ -1,0 +1,23 @@
+import React from 'react';
+import { Table, Icon } from '@tea/component';
+
+const {
+  filterable,
+  scrollable,
+  autotip,
+  selectable,
+  rowtooltip
+} = Table.addons;
+
+
+export function generateAddOn(param: ServerTableAddon): any[] {
+  const {
+
+  } = param;
+  
+  return [
+    
+  ];
+}
+
+export default generateAddOn;

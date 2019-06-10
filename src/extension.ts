@@ -1,13 +1,12 @@
 import * as vscode from "vscode";
 const fs = require("fs");
 const clipboardy = require("clipboardy");
-const path = require('path');
-const exec = require('child_process').exec;
+const path = require("path");
+const exec = require("child_process").exec;
 
 enum ComponentType {
-  TABLE,
+  TABLE
 }
-
 
 function extractTableField(fileContent: string): string {
   const re = /[\s\S]*colums:([\s\S]*\}\s+\])[\s\S]*/;
@@ -28,7 +27,10 @@ function extractTableField(fileContent: string): string {
   if (Array.isArray(fieldList)) {
     fieldList.forEach(item => {
       const key = item.key;
-      const reContent = new RegExp(`[\\s\\S]*case "${key}":([\\s\\S]*?)break`,"g");
+      const reContent = new RegExp(
+        `[\\s\\S]*case "${key}":([\\s\\S]*?)break`,
+        "g"
+      );
       const foundContent = reContent.exec(fileContent);
 
       if (!Array.isArray(foundContent) || foundContent.length < 2) {
@@ -72,13 +74,12 @@ function extractTableField(fileContent: string): string {
   // );
 
   // 去掉多余的换行和斜杠
-  columnsToWrite = columnsToWrite.replace(/\\n/g,'');
-  columnsToWrite = columnsToWrite.replace(/\\/g,'');  
+  columnsToWrite = columnsToWrite.replace(/\\n/g, "");
+  columnsToWrite = columnsToWrite.replace(/\\/g, "");
 
   // 让注释生效
-  columnsToWrite = columnsToWrite.replace(/"\/\*/g,'\/\*');  
-  columnsToWrite = columnsToWrite.replace(/\*\/"/g,'\*\/');  
-
+  columnsToWrite = columnsToWrite.replace(/"\/\*/g, "/*");
+  columnsToWrite = columnsToWrite.replace(/\*\/"/g, "*/");
 
   const strToWrite = `import React, { Fragment } from 'react';
   import { t, Trans } from '@tea/app/i18n';
@@ -95,58 +96,152 @@ function extractTableField(fileContent: string): string {
   return strToWrite;
 }
 
-function generateClassName(dirName:string) {
+function generateClassName(dirName: string) {
   if (!dirName) {
-      throw new Error('dir name should not be null');
+    throw new Error("dir name should not be null");
   }
 
-  function capitalizeFirstLetter(string:string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
+  function capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
-  const nameArr = dirName.split('_');
-  let className = '';
-  
+  const nameArr = dirName.split("_");
+  let className = "";
+
   for (const name of nameArr) {
-      className += capitalizeFirstLetter(name);
+    className += capitalizeFirstLetter(name);
   }
-  
+
   return className;
 }
 
-function generateComponent(componentName:string, fullPath:string, componentType: ComponentType) {
+function generateComponent(
+  componentName: string,
+  fullPath: string,
+  componentType: ComponentType
+) {
   if (fs.existsSync(fullPath)) {
-      console.log(`${componentName} already exists, please choose another name.`);
-      return;
+    console.log(`${componentName} already exists, please choose another name.`);
+    return;
   }
 
   const className = generateClassName(componentName);
   console.log(`class name: ${className}`);
 
-
+  /*********** index 文件 ***********/
   fs.mkdirSync(fullPath);
 
-  const fcTemplate = path.resolve(__dirname, '../code_templates/fc.txt');
+  const indexTemplate = path.resolve(
+    __dirname,
+    "../code_templates/index.tsx.txt"
+  );
+  const indexFile = path.resolve(`${fullPath}/index.js`);
+  const indexFileContent = fs.readFileSync(indexTemplate, {
+    encoding: "utf-8"
+  });
+  fs.writeFileSync(
+    indexFile,
+    indexFileContent.replace(/ClassName/g, className)
+  );
 
-  const jsFile = path.resolve(`${fullPath}/index.js`);
+  const cssTemplate = path.resolve(
+    __dirname,
+    "../code_templates/index.css.txt"
+  );
+  const cssFile = path.resolve(`${fullPath}/index.css`);
+  fs.writeFileSync(
+    cssFile,
+    fs.readFileSync(cssTemplate, { encoding: "utf-8" })
+  );
 
-  const jsFileContent = fs.readFileSync(fcTemplate, { encoding: 'utf-8' });
+  /*********** api 文件 ***********/
+  fs.mkdirSync(`${fullPath}/api`);
 
-  fs.writeFileSync(jsFile, jsFileContent.replace(/ClassName/g, className));
+  const apiTemplate = path.resolve(__dirname, "../code_templates/api.ts.txt");
+  const apiFile = path.resolve(`${fullPath}/api/index.ts`);
+  fs.writeFileSync(
+    apiFile,
+    fs.readFileSync(apiTemplate, { encoding: "utf-8" })
+  );
 
-/*   exec(`cd ${fullPath} && git add .`, (err) => {
-      if (err) {
-          console.log('command fail:', 'git add .');
-      } else {
-          console.log('command success:', 'git add .');
-      }
-  }); */
+  /*********** panel 文件 ***********/
+  fs.mkdirSync(`${fullPath}/OperationPanel`);
 
- vscode.window.showInformationMessage('component created successfully!');
+  const panelTemplate = path.resolve(
+    __dirname,
+    "../code_templates/panel.tsx.txt"
+  );
+  const panelFile = path.resolve(`${fullPath}/OperationPanel/index.tsx`);
+  fs.writeFileSync(
+    panelFile,
+    fs.readFileSync(panelTemplate, { encoding: "utf-8" })
+  );
+
+  /*********** table 文件 ***********/
+  fs.mkdirSync(`${fullPath}/Table`);
+
+  const tableTemplate = path.resolve(
+    __dirname,
+    "../code_templates/table.tsx.txt"
+  );
+  const tableFile = path.resolve(`${fullPath}/Table/index.tsx`);
+  fs.writeFileSync(
+    tableFile,
+    fs.readFileSync(tableTemplate, { encoding: "utf-8" })
+  );
+  const cssTableFile = path.resolve(`${fullPath}/Table/index.css`);
+  fs.writeFileSync(
+    cssTableFile,
+    fs.readFileSync(cssTemplate, { encoding: "utf-8" })
+  );
+
+  /*********** table hooks 文件 ***********/
+  fs.mkdirSync(`${fullPath}/Table/hooks`);
+
+  const hookTemplate = path.resolve(__dirname, "../code_templates/hook.ts.txt");
+  const hookFile = path.resolve(`${fullPath}/Table/hooks/index.ts`);
+  fs.writeFileSync(
+    hookFile,
+    fs.readFileSync(hookTemplate, { encoding: "utf-8" })
+  );
+
+  /*********** table config 文件 ***********/
+  fs.mkdirSync(`${fullPath}/Table/config`);
+
+  const addonTemplate = path.resolve(
+    __dirname,
+    "../code_templates/addon.tsx.txt"
+  );
+  const addonFile = path.resolve(`${fullPath}/Table/config/addons.tsx`);
+  fs.writeFileSync(
+    addonFile,
+    fs.readFileSync(addonTemplate, { encoding: "utf-8" })
+  );
+
+  const fieldsTemplate = path.resolve(
+    __dirname,
+    "../code_templates/fields.tsx.txt"
+  );
+  const fieldsFile = path.resolve(`${fullPath}/Table/config/fields.tsx`);
+  fs.writeFileSync(
+    fieldsFile,
+    fs.readFileSync(fieldsTemplate, { encoding: "utf-8" })
+  );
+
+  const configTemplate = path.resolve(
+    __dirname,
+    "../code_templates/config.index.ts.txt"
+  );
+  const configFile = path.resolve(`${fullPath}/Table/config/index.ts`);
+  fs.writeFileSync(
+    configFile,
+    fs.readFileSync(configTemplate, { encoding: "utf-8" })
+  );
+
+  vscode.window.showInformationMessage("component created successfully!");
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  
   const generateCode = vscode.commands.registerCommand(
     "extension.generateCode",
     param => {
@@ -193,17 +288,18 @@ export function activate(context: vscode.ExtensionContext) {
       const options = {
         prompt: "Please input the component name: ",
         placeHolder: "Component Name"
-    }
-    
-    vscode.window.showInputBox(options).then(value => {
+      };
+
+      vscode.window.showInputBox(options).then(value => {
         if (!value) return;
 
         const componentName = value;
         const fullPath = `${folderPath}/${componentName}`;
 
         generateComponent(componentName, fullPath, ComponentType.TABLE);
-    });
-    });
+      });
+    }
+  );
 
   context.subscriptions.push(generateCode);
   context.subscriptions.push(createTable);
