@@ -1,11 +1,12 @@
 {
-  "name": "tce-i18n",
-  "displayName": "tce-i18n",
+  "name": "TCE i18n",
+  "displayName": "TCE i18n",
   "description": "development tool for tce i18n project",
   "version": "0.0.2",
   "engines": {
     "vscode": "^1.34.0"
   },
+  "icon": "images/icon.png",
   "publisher": "dickenslian",
   "repository": {
     "type": "git",
@@ -24,10 +25,11 @@
       {
         "command": "extension.generateCode",
         "title": "Generate Code"
-      }, {
+      },
+      {
         "command": "extension.createTable",
         "title": "Create Table"
-    }
+      }
     ],
     "menus": {
       "editor/context": [
@@ -38,10 +40,10 @@
       ],
       "explorer/context": [
         {
-            "command": "extension.createTable",
-            "group": "1_modification"
+          "command": "extension.createTable",
+          "group": "1_modification"
         }
-    ]
+      ]
     }
   },
   "scripts": {
