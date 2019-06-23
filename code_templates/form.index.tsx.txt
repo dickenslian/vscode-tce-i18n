@@ -1,0 +1,81 @@
+import React, { FC, useState, Fragment } from 'react';
+import { Button } from '@tea/component';
+import { TCEForm } from '@tencent/tce-component';
+import { t } from '@tea/app/i18n';
+import getValidationSchema from './validate';
+import onSubmit from './submit';
+import {  } from './hooks';
+import './index.css';
+
+const { InputField, SelectField } = TCEForm;
+
+const ClassName: FC<> = function({
+  initValue = {
+
+  },
+}) {
+
+  function onAbort() {
+
+  }
+
+  return (
+    <TCEForm
+      initialValues={initValue}
+      validationSchema={getValidationSchema()}
+      onSubmit={onSubmit}
+      layout="inline"
+      className=""
+    >
+      {formProps => {
+        const { isSubmitting, submitForm } = formProps;
+
+        /**
+         * Tea 组件在 disabled 情况下没给底层的 button 标签加 disable
+         * 为了防止多次提交，只能自己来触发 submit
+         */
+        function submit() {
+          submitForm();
+        }
+
+        return (
+          <Fragment>
+            <InputField
+              label={t('')}
+              name=""
+              required
+            />
+            <SelectField
+              label={t('')}
+              name=""
+              options={[
+                { value: , text: t('') },
+                { value: , text: t('') },
+                { value: , text: t('') }
+              ]}
+              type="simulate"
+              appearence="button"
+              required
+            />
+            <section className="action-bar">
+              <Button
+                type="primary"
+                htmlType="button"
+                loading={isSubmitting}
+                disabled={isSubmitting}
+                onClick={submit}
+              >
+                {t('确定')}
+              </Button>
+              <Button type="weak" htmlType="button" onClick={onAbort}>
+                {t('取消')}
+              </Button>
+            </section>
+          </Fragment>
+        );
+      }}
+    </TCEForm>
+  );
+};
+
+export default ClassName;

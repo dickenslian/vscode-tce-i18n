@@ -1,23 +1,15 @@
-import { useState, useEffect } from 'react';
-import { tips, appUtil } from '@tencent/tce-lib';
-import {  } from '../../api';
+import { useEffect, useState } from 'react';
 
-export function useTableData(
-  page: number,
-  pageSize: number,
-) {
-  const [records, setRecords] = useState([]);
-  const [totalRecords, setTotalRecords] = useState(0);
-  const [loading, setLoading] = useState(false);
+export function useHook() {
+  const [data, setData] = useState();
 
   useEffect(() => {
+    async function getData() {
 
+    }
 
-  }, [page, pageSize]);
+    getData();
+  }, []);
 
-  return {
-    records,
-    totalRecords,
-    loading,
-  };
+  return data;
 }

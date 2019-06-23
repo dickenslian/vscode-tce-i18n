@@ -5,7 +5,8 @@ const path = require("path");
 const exec = require("child_process").exec;
 
 enum ComponentType {
-  TABLE
+  TABLE,
+  FORM
 }
 
 function extractTableField(fileContent: string): string {
@@ -92,7 +93,6 @@ function extractTableField(fileContent: string): string {
   import { constants } from '@tencent/tce-lib';
 
   export function getListFields() {
-    // 列表参数
     let columns = ${columnsToWrite};
 
     return columns;
@@ -121,25 +121,11 @@ function generateClassName(dirName: string) {
   return className;
 }
 
-function generateComponent(
-  componentName: string,
-  fullPath: string,
-  componentType: ComponentType
-) {
-  if (fs.existsSync(fullPath)) {
-    console.log(`${componentName} already exists, please choose another name.`);
-    return;
-  }
-
-  const className = generateClassName(componentName);
-  console.log(`class name: ${className}`);
-
+function generateTable(fullPath: string, className: string) {
   /*********** index 文件 ***********/
-  fs.mkdirSync(fullPath);
-
   const indexTemplate = path.resolve(
     __dirname,
-    "../code_templates/index.tsx.txt"
+    "../code_templates/table.index.tsx.txt"
   );
   const indexFile = path.resolve(`${fullPath}/index.tsx`);
   const indexFileContent = fs.readFileSync(indexTemplate, {
@@ -204,7 +190,7 @@ function generateComponent(
   /*********** table hooks 文件 ***********/
   fs.mkdirSync(`${fullPath}/Table/hooks`);
 
-  const hookTemplate = path.resolve(__dirname, "../code_templates/hook.ts.txt");
+  const hookTemplate = path.resolve(__dirname, "../code_templates/table.hook.ts.txt");
   const hookFile = path.resolve(`${fullPath}/Table/hooks/index.ts`);
   fs.writeFileSync(
     hookFile,
@@ -243,13 +229,97 @@ function generateComponent(
     configFile,
     fs.readFileSync(configTemplate, { encoding: "utf-8" })
   );
+}
 
+function generateForm(fullPath: string, className: string) {
+  /*********** index 文件 ***********/
+  const indexTemplate = path.resolve(
+    __dirname,
+    "../code_templates/form.index.tsx.txt"
+  );
+  const indexFile = path.resolve(`${fullPath}/index.tsx`);
+  const indexFileContent = fs.readFileSync(indexTemplate, {
+    encoding: "utf-8"
+  });
+  fs.writeFileSync(
+    indexFile,
+    indexFileContent.replace(/ClassName/g, className)
+  );
+
+  const cssTemplate = path.resolve(
+    __dirname,
+    "../code_templates/index.css.txt"
+  );
+  const cssFile = path.resolve(`${fullPath}/index.css`);
+  fs.writeFileSync(
+    cssFile,
+    fs.readFileSync(cssTemplate, { encoding: "utf-8" })
+  );
+
+  /*********** validate 文件 ***********/ 
+  fs.mkdirSync(`${fullPath}/validate`);
+
+  const validateTemplate = path.resolve(__dirname, "../code_templates/validate.ts.txt");
+  const validateFile = path.resolve(`${fullPath}/validate/index.ts`);
+  fs.writeFileSync(
+    validateFile,
+    fs.readFileSync(validateTemplate, { encoding: "utf-8" })
+  ); 
+
+  /*********** hooks 文件 ***********/ 
+  fs.mkdirSync(`${fullPath}/hooks`);
+
+  const hookTemplate = path.resolve(__dirname, "../code_templates/hook.ts.txt");
+  const hookFile = path.resolve(`${fullPath}/hooks/index.ts`);
+  fs.writeFileSync(
+    hookFile,
+    fs.readFileSync(hookTemplate, { encoding: "utf-8" })
+  ); 
+
+  /*********** submit 文件 ***********/ 
+  fs.mkdirSync(`${fullPath}/submit`);
+
+  const submitTemplate = path.resolve(__dirname, "../code_templates/submit.ts.txt");
+  const submitFile = path.resolve(`${fullPath}/submit/index.ts`);
+  fs.writeFileSync(
+    submitFile,
+    fs.readFileSync(submitTemplate, { encoding: "utf-8" })
+  ); 
+}
+
+function generateComponent(
+  componentName: string,
+  fullPath: string,
+  componentType: ComponentType
+) {
+  if (fs.existsSync(fullPath)) {
+    console.log(`${componentName} already exists, please choose another name.`);
+    return;
+  }
+
+  const className = generateClassName(componentName);
+  console.log(`class name: ${className}`);
+
+  // 生成父级目录
+  fs.mkdirSync(fullPath);
+
+  switch(componentType) {
+    case ComponentType.TABLE:
+      generateTable(fullPath, className);
+      break;
+    case ComponentType.FORM:
+      generateForm(fullPath, className);
+      break;
+    default:
+      vscode.window.showErrorMessage('unsupported component type');
+  }
+  
   vscode.window.showInformationMessage("component created successfully!");
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  const generateCode = vscode.commands.registerCommand(
-    "extension.generateCode",
+  const generateTableField = vscode.commands.registerCommand(
+    "extension.generateTableField",
     param => {
       let currentlyOpenTabfilePath;
       const textEditor = vscode.window.activeTextEditor;
@@ -307,8 +377,30 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  context.subscriptions.push(generateCode);
+  const createForm = vscode.commands.registerCommand(
+    "extension.createForm",
+    param => {
+      const folderPath = param.fsPath;
+
+      const options = {
+        prompt: "Please input the component name: ",
+        placeHolder: "Component Name"
+      };
+
+      vscode.window.showInputBox(options).then(value => {
+        if (!value) return;
+
+        const componentName = value;
+        const fullPath = `${folderPath}/${componentName}`;
+
+        generateComponent(componentName, fullPath, ComponentType.FORM);
+      });
+    }
+  );
+
+  context.subscriptions.push(generateTableField);
   context.subscriptions.push(createTable);
+  context.subscriptions.push(createForm);
 }
 
 // this method is called when your extension is deactivated

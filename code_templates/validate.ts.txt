@@ -1,0 +1,11 @@
+import * as Yup from 'yup';
+import { t } from '@tea/app/i18n';
+
+export default function getValidationSchema() {
+  const required = t('该项为必填项');
+
+  return Yup.object().shape({
+    str: Yup.string().required(required),
+    num: Yup.number().positive(t('数字必须大于0')).required(required),
+  });
+}
