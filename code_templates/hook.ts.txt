@@ -1,0 +1,23 @@
+import { useState, useEffect } from 'react';
+import { tips, appUtil } from '@tencent/tce-lib';
+import {  } from '../../api';
+
+export function useTableData(
+  page: number,
+  pageSize: number,
+) {
+  const [records, setRecords] = useState([]);
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+
+
+  }, [page, pageSize]);
+
+  return {
+    records,
+    totalRecords,
+    loading,
+  };
+}

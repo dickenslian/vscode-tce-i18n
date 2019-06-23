@@ -10,13 +10,26 @@ const {
 } = Table.addons;
 
 
-export function generateAddOn(param: ServerTableAddon): any[] {
-  const {
-
-  } = param;
-  
+export function generateAddOn(): any[] {
   return [
-    
+   // 支持表格滚动，高度超过 192 开始显示滚动条
+   scrollable({
+    maxHeight: ,
+    minWidth: ,
+    onScrollBottom: () => console.log("到达底部")
+    }),
+    filterable({
+      type: 'multiple',
+      column: '',
+      onChange: value => {
+        
+      },
+      all: {
+        value: 'all',
+        label: '全选'
+      },
+      options: []
+    }), 
   ];
 }
 

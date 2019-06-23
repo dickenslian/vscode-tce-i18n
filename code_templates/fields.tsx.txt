@@ -2,7 +2,6 @@ import React from 'react';
 import { t, Trans } from '@tea/app/i18n';
 
 export function getListFields( ) {
-  // 列表参数
   let columns = [
     {
       header: t('部署状态'),

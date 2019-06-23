@@ -1,21 +1,25 @@
 import React, { useState, FC } from 'react';
 import { TceTable } from '@tencent/tce-component';
 import { getListFields, generateAddOn } from './config';
-import {  } from './hooks';
+import { useTableData } from './hooks';
 import './index.css';
 
-const ServerTable: FC<> = function({}) {
+const Table: FC<> = function({}) {
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
   // table 数据获取
-
-  // 列筛选数据的获取
+  const {
+    records,
+    totalRecords,
+    loading,
+  } = useTableData(page, pageSize)
 
   // 定义插件
   const addons = generateAddOn();
 
+  // 定义字段
   const columns = getListFields();
 
   function onPagingChange({ pageIndex, pageSize }) {
@@ -31,7 +35,6 @@ const ServerTable: FC<> = function({}) {
         records={records}
         addons={addons}
         bordered={true}
-        recordKey="svr_sn"
         columns={columns}
         rowDisabled={record => record['loading'] === true}
         pageIndex={page}
@@ -43,4 +46,4 @@ const ServerTable: FC<> = function({}) {
   );
 };
 
-export default ServerTable;
+export default Table;

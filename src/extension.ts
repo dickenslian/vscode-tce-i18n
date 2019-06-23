@@ -22,7 +22,13 @@ function extractTableField(fileContent: string): string {
     return `"${key}"`;
   });
 
-  const fieldList = JSON.parse(formatedStr);
+  let fieldList;
+  try {
+    fieldList = JSON.parse(formatedStr);
+  } catch (error) {
+    vscode.window.showErrorMessage('Code parse error! Please uncomment the code in the table column definition.');
+  }
+  
 
   if (Array.isArray(fieldList)) {
     fieldList.forEach(item => {
@@ -135,7 +141,7 @@ function generateComponent(
     __dirname,
     "../code_templates/index.tsx.txt"
   );
-  const indexFile = path.resolve(`${fullPath}/index.js`);
+  const indexFile = path.resolve(`${fullPath}/index.tsx`);
   const indexFileContent = fs.readFileSync(indexTemplate, {
     encoding: "utf-8"
   });
@@ -250,7 +256,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (!textEditor) {
         vscode.window.showInformationMessage(
-          "pls open the file your code generated from"
+          "please open the file your code generated from"
         );
         return;
       }
@@ -264,7 +270,7 @@ export function activate(context: vscode.ExtensionContext) {
           if (err) throw err;
 
           if (!data) {
-            vscode.window.showInformationMessage("fail to read file");
+            vscode.window.showErrorMessage("fail to read file");
             return;
           }
 
