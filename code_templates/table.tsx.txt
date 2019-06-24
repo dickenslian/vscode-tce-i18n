@@ -1,6 +1,6 @@
 import React, { useState, FC } from 'react';
 import { TceTable } from '@tencent/tce-component';
-import { getListFields, generateAddOn } from './config';
+import { getTableFields, generateAddOn } from './config';
 import { useTableData } from './hooks';
 import './index.css';
 
@@ -20,7 +20,7 @@ const Table: FC<> = function({}) {
   const addons = generateAddOn();
 
   // 定义字段
-  const columns = getListFields();
+  const columns = getTableFields();
 
   function onPagingChange({ pageIndex, pageSize }) {
     setPage(pageIndex);

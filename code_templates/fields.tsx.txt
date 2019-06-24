@@ -1,7 +1,7 @@
 import React from 'react';
 import { t, Trans } from '@tea/app/i18n';
 
-export function getListFields( ) {
+export function getTableFields( ) {
   let columns = [
     {
       header: t('部署状态'),
@@ -17,4 +17,4 @@ export function getListFields( ) {
   return columns;
 }
 
-export default getListFields;
+export default getTableFields;

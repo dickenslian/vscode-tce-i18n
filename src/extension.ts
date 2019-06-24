@@ -92,7 +92,7 @@ function extractTableField(fileContent: string): string {
   import { t, Trans } from '@tea/app/i18n';
   import { constants } from '@tencent/tce-lib';
 
-  export function getListFields() {
+  export function getTableFields() {
     let columns = ${columnsToWrite};
 
     return columns;
