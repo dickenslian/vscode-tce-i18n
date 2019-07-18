@@ -26,7 +26,7 @@ TCE i18n 插件是为 TCE 国际化项目定制的效率工具。目前提供 6 
   3. 在新代码的文件中，粘贴代码，然后格式化一下
 
 - 生成代码流程图
-  ![add flowchart](https://raw.githubusercontent.com/dickenslian/vscode-tce-i18n/master/images/flowchart.gif)
+  ![add flowchart](https://raw.githubusercontent.com/dickenslian/vscode-tce-i18n/master/images/chart.gif)
 
   1. 打开导航栏，右键点击目标 \*\*.js 文件，选择`Generate JS Flowchart`
   2. 会在当前目录下生成文件的流程图 \*\*.svg
