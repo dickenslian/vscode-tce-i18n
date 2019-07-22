@@ -26,14 +26,14 @@ TCE i18n 插件是为 TCE 国际化项目定制的效率工具。目前提供 6 
   3. 在新代码的文件中，粘贴代码，然后格式化一下
 
 - 生成代码流程图
-  ![add flowchart](https://raw.githubusercontent.com/dickenslian/vscode-tce-i18n/master/images/chart.gif)
+  ![add flowchart](https://raw.githubusercontent.com/dickenslian/vscode-tce-i18n/master/images/flowchart.gif)
 
   1. 打开导航栏，右键点击目标 \*\*.js 文件，选择`Generate JS Flowchart`
   2. 会在当前目录下生成文件的流程图 \*\*.svg
   3. 可以安装插件 Svg Preview 查看 SVG 文件
 
 - 将 require 转换为 import
-  ![change require](https://raw.githubusercontent.com/dickenslian/vscode-tce-i18n/master/images/import.gif)
+  ![change require](https://raw.githubusercontent.com/dickenslian/vscode-tce-i18n/master/images/require.gif)
 
   1. 在编辑器打开目标文件，点击右键，选择`Change Require to Import`
   2. 所有的 require 将自动转换为 import
